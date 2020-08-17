@@ -162,6 +162,10 @@ getData();
 
                             if(rs1.getString("NOTE").equalsIgnoreCase("دفعة")){
                                     totalPaid +=rs1.getDouble("PAID");
+                            }else if(rs1.getString("NOTE").equalsIgnoreCase("مرجع")) {
+                     total -= rs1.getDouble("TOTAL_AMOUNT");
+
+                        totalPaid += 0;
                             }else{
                                 total += rs1.getDouble("TOTAL_AMOUNT");
                         totalPaid += rs1.getDouble("PAID");
@@ -446,6 +450,10 @@ getData();
 
                             if(rs1.getString("NOTE").equalsIgnoreCase("دفعة")){
                                     totalPaid +=rs1.getDouble("PAID");
+                            }else if(rs1.getString("NOTE").equalsIgnoreCase("مرجع")) {
+                     total -= rs1.getDouble("TOTAL_AMOUNT");
+
+                        totalPaid += 0;
                             }else{
                                 total += rs1.getDouble("TOTAL_AMOUNT");
                         totalPaid += rs1.getDouble("PAID");

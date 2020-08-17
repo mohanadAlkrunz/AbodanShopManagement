@@ -67,7 +67,7 @@ public class ViewPurchaseHistoryActivity extends javax.swing.JFrame {
                 TableModel model = jTable2.getModel();
 
                 String value1 = model.getValueAt(index, 8).toString();
-                new BillActivity(Integer.parseInt(value1), customerID, false).setVisible(true);
+                new BillActivity(Integer.parseInt(value1), customerID, false,purchaseHistory.get(index).getNote()).setVisible(true);
                 setVisible(false);
 
             }
@@ -554,8 +554,10 @@ setVisible(false);
 
     private void showAccountDetailsMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_showAccountDetailsMouseClicked
         // TODO add your handling code here:
+        new AccountPaymentDetailsActivity(customerID, customerName.getText(),Double.valueOf(totalBalance.getText())).setVisible(true);
+        setVisible(false);
 
-        
+
 
     }//GEN-LAST:event_showAccountDetailsMouseClicked
 
@@ -634,7 +636,10 @@ setVisible(false);
                                     mPayment=0;
                              }
 
-                        } else {
+                        } else if(rs.getString("NOTE").equalsIgnoreCase("مرجع")){
+                             total -= rs.getDouble("TOTAL_AMOUNT");
+                            totalPaid += 0;
+                        }else {
 
                             total += rs.getDouble("TOTAL_AMOUNT");
                             totalPaid += rs.getDouble("PAID");
@@ -664,7 +669,9 @@ setVisible(false);
  Collections.reverse(purchaseHistory);
         Object[] row = new Object[9];
         for (int i = 0; i < purchaseHistory.size(); i++) {
-            row[0] = purchaseHistory.get(i).getNote();
+
+
+                  row[0] = purchaseHistory.get(i).getNote();
             row[1] = purchaseHistory.get(i).getPURCHASE_DATE();
             row[2] = purchaseHistory.get(i).getDiscount() + "";
             row[3] = purchaseHistory.get(i).getRemain() + "";
@@ -674,6 +681,8 @@ setVisible(false);
             row[7] = purchaseHistory.get(i).getCUSTOMER_ID() + "";
             row[8] = purchaseHistory.get(i).getId() + "";
             model.addRow(row);
+
+
 
         }
 

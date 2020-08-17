@@ -36,23 +36,34 @@ public class BillActivity extends javax.swing.JFrame {
     Object[] columns = {"الإجمالي", "الكمية", "سعر الوحدة", "اسم الصنف", "م.ف", "م"};
     static List<PurchasedProduct> productsList = new ArrayList<>();
     static int bill_ID;
-
+    int customerID;
     private int id;
     private boolean mIsCompany;
+    private String note;
 
-    public BillActivity(int bill_ID, int id, boolean isCompany) {
+    public BillActivity(int bill_ID, int id, boolean isCompany,String note) {
         initComponents();
 UIManager.put("OptionPane.messageFont", new FontUIResource(new Font(
                 "Arial", Font.BOLD, 18)));
         this.bill_ID = bill_ID;
         this.mIsCompany = isCompany;
         this.id = id;
+        this.note=note;
         System.out.println("bill id >>> " + BillActivity.bill_ID);
         Font font = new Font("Arial", Font.PLAIN, 18);
         jTable2.setFont(font);
         jTable2.getTableHeader().setFont(font);
 
-        getData();
+        if(isCompany)
+            addReturned.setVisible(false);
+
+
+        if(note.equalsIgnoreCase("مرجع")){
+                getReturnedItems();
+        }else{
+            getData();
+        }
+
  DefaultTableCellRenderer renderer=(DefaultTableCellRenderer)  jTable2.getTableHeader().getDefaultRenderer();
       renderer.setHorizontalAlignment(JLabel.CENTER);
         jTable2.addMouseListener(new MouseListener() {
@@ -116,6 +127,8 @@ UIManager.put("OptionPane.messageFont", new FontUIResource(new Font(
         jLabel8 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
         discountTotal = new javax.swing.JTextField();
+        jPanel9 = new javax.swing.JPanel();
+        addReturned = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setTitle("الفاتورة");
@@ -290,6 +303,35 @@ UIManager.put("OptionPane.messageFont", new FontUIResource(new Font(
         jPanel1.add(discountTotal);
         discountTotal.setBounds(160, 540, 90, 40);
 
+        jPanel9.setBackground(new java.awt.Color(153, 153, 153));
+
+        addReturned.setFont(new java.awt.Font("Arial", 1, 16)); // NOI18N
+        addReturned.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        addReturned.setText("إضافة مرجع");
+        addReturned.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                addReturnedMouseClicked(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel9Layout = new javax.swing.GroupLayout(jPanel9);
+        jPanel9.setLayout(jPanel9Layout);
+        jPanel9Layout.setHorizontalGroup(
+            jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel9Layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(addReturned, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
+        jPanel9Layout.setVerticalGroup(
+            jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel9Layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(addReturned, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
+
+        jPanel1.add(jPanel9);
+        jPanel9.setBounds(30, 180, 110, 30);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -320,8 +362,99 @@ UIManager.put("OptionPane.messageFont", new FontUIResource(new Font(
 
     }//GEN-LAST:event_backMouseClicked
 
+    private void addReturnedMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_addReturnedMouseClicked
+        // TODO add your handling code here:
+        new EditBillActivity(customerName.getText(),customerID).setVisible(true);
+        setVisible(false);
+
+    }//GEN-LAST:event_addReturnedMouseClicked
+
+
+    private void getReturnedItems(){
+            productsList.clear();
+
+        try {
+            Class.forName("net.ucanaccess.jdbc.UcanaccessDriver");
+            File f = new File("AboDan shops.accdb");
+            String path = f.getAbsolutePath();
+            //  now we can get the connection from the DriverManager
+            Connection con = DriverManager.getConnection("jdbc:ucanaccess://" + path, "", "");
+            con.setAutoCommit(false);
+            Statement s = con.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+
+            if (mIsCompany) {
+
+                s.execute("select ID,PURCHASE_ID,PRODUCT_NAME,ORIGINAL_PRICE,QUANTITY,TOTAL from PurchaseCompanyProducts");
+
+                ResultSet rs = s.getResultSet(); // get any ResultSet that came from our query
+
+                if (rs != null) {
+
+                    while (rs.next()) {
+
+                        if (bill_ID == rs.getInt("PURCHASE_ID")) {
+
+                            PurchasedProduct purchasedProduct = new PurchasedProduct();
+                            purchasedProduct.setId(rs.getInt("ID"));
+                            purchasedProduct.setPURCHASE_ID(rs.getInt("PURCHASE_ID"));
+                            purchasedProduct.setName(rs.getString("PRODUCT_NAME"));
+                            purchasedProduct.setQuantity(rs.getInt("QUANTITY"));
+                            purchasedProduct.setTOTAL(rs.getDouble("TOTAL"));
+                            purchasedProduct.setSalePrice(rs.getDouble("ORIGINAL_PRICE"));
+
+                            productsList.add(purchasedProduct);
+                            displayData();
+                        }
+
+                    }
+
+                }
+
+                con.commit();
+                rs.close();
+                con.close();
+            } else {
+
+                s.execute("select ID,PURCHASE_ID,PRODUCT_NAME,PRICE,QUANTITY,TOTAL from ReturndProducts");
+
+                ResultSet rs = s.getResultSet(); // get any ResultSet that came from our query
+
+                if (rs != null) {
+
+                    while (rs.next()) {
+
+                        if (bill_ID == rs.getInt("PURCHASE_ID")) {
+
+                            PurchasedProduct purchasedProduct = new PurchasedProduct();
+                            purchasedProduct.setId(rs.getInt("ID"));
+                            purchasedProduct.setPURCHASE_ID(rs.getInt("PURCHASE_ID"));
+                            purchasedProduct.setName(rs.getString("PRODUCT_NAME"));
+                            purchasedProduct.setQuantity(rs.getInt("QUANTITY"));
+                            purchasedProduct.setTOTAL(rs.getDouble("TOTAL"));
+                            purchasedProduct.setSalePrice(rs.getDouble("PRICE"));
+
+                            productsList.add(purchasedProduct);
+                            displayData();
+                        }
+
+                    }
+
+                }
+
+                con.commit();
+                rs.close();
+                con.close();
+            }
+
+            getBillInformations();
+        } catch (Exception e) {
+            e.printStackTrace();
+
+        }
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel addReturned;
     private javax.swing.JLabel back;
     private javax.swing.JTextField customerName;
     private javax.swing.JTextField discountTotal;
@@ -337,6 +470,7 @@ UIManager.put("OptionPane.messageFont", new FontUIResource(new Font(
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
+    private javax.swing.JPanel jPanel9;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTable jTable2;
     private javax.swing.JTextField paid;
@@ -391,7 +525,7 @@ UIManager.put("OptionPane.messageFont", new FontUIResource(new Font(
                     {
 
                         if (bill_ID == rs.getInt("ID")) {
-
+                             customerID=rs.getInt("CUSTOMER_ID");
                             customerName.setText(rs.getString("CUSTOMER_NAME"));
                             totalBalance.setText(rs.getDouble("TOTAL_AMOUNT") + "");
                             remain.setText(rs.getDouble("REMAIN") + "");
@@ -458,6 +592,7 @@ UIManager.put("OptionPane.messageFont", new FontUIResource(new Font(
                 }
 
                 con.commit();
+                rs.close();
                 con.close();
             } else {
 
@@ -488,6 +623,7 @@ UIManager.put("OptionPane.messageFont", new FontUIResource(new Font(
                 }
 
                 con.commit();
+                rs.close();
                 con.close();
             }
 

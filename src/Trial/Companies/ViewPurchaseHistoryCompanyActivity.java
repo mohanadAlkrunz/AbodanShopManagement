@@ -63,7 +63,7 @@ UIManager.put("OptionPane.messageFont", new FontUIResource(new Font(
                 TableModel model = jTable2.getModel();
 
                 String value1 = model.getValueAt(index, 7).toString();
-                new BillActivity(Integer.parseInt(value1), companyID, true).setVisible(true);
+                new BillActivity(Integer.parseInt(value1), companyID, true,purchaseHistory.get(index).getNote()).setVisible(true);
                 setVisible(false);
 
             }

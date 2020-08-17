@@ -21,6 +21,17 @@ public class PurchasedProduct {
     double salePrice;
     int quantity;
     double TOTAL;
+    String purchaseDate;
+
+    public String getPurchaseDate() {
+        return purchaseDate;
+    }
+
+    public void setPurchaseDate(String purchaseDate) {
+        this.purchaseDate = purchaseDate;
+    }
+
+    
 
     public int getPURCHASE_ID() {
         return PURCHASE_ID;

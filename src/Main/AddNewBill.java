@@ -961,8 +961,10 @@ UIManager.put("OptionPane.messageFont", new FontUIResource(new Font(
             int t =JOptionPane.showConfirmDialog(null, "هل تريد طباعة الفاتورة ؟");
             if(t==0){
                 System.out.println("Yes");
+                new MainActivity().setVisible(true);
                 new PrintActivity(billProducts,bill_ID,customerName.getText(),formatter.format(date),mTotalAfter,mDiscountAmount,mPaid,mRemain).setVisible(true);
-            }else{
+                dispose();
+                }else{
                  System.out.println("NO");
                    MainActivity activity = new MainActivity();
             activity.setVisible(true);

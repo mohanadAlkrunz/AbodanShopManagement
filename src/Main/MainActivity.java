@@ -133,7 +133,7 @@ UIManager.put("OptionPane.messageFont", new FontUIResource(new Font(
 
                 String value1 = model.getValueAt(index, 6).toString();
                 String value2 = model.getValueAt(index, 5).toString();
-                new BillActivity(Integer.parseInt(value1), Integer.parseInt(value2), false).setVisible(true);
+                new BillActivity(Integer.parseInt(value1), Integer.parseInt(value2), false,purchaseHistory.get(index).getNote()).setVisible(true);
                 setVisible(false);
 
             }
@@ -236,7 +236,7 @@ UIManager.put("OptionPane.messageFont", new FontUIResource(new Font(
             con.setAutoCommit(false);
             Statement s = con.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
 
-            s.execute("select ID,CUSTOMER_ID,CUSTOMER_NAME,TOTAL_AMOUNT,PAID,REMAIN,PURCHASE_DATE from PurchaseHistory");
+            s.execute("select ID,CUSTOMER_ID,CUSTOMER_NAME,TOTAL_AMOUNT,PAID,REMAIN,PURCHASE_DATE,NOTE from PurchaseHistory");
 
             ResultSet rs = s.getResultSet(); // get any ResultSet that came from our query
 
@@ -255,6 +255,7 @@ UIManager.put("OptionPane.messageFont", new FontUIResource(new Font(
 
                     bill.setRemain(rs.getDouble("REMAIN"));
                     bill.setPURCHASE_DATE(rs.getString("PURCHASE_DATE"));
+                    bill.setNote(rs.getString("NOTE"));
 
                     purchaseHistory.add(bill);
                         }
@@ -885,7 +886,7 @@ UIManager.put("OptionPane.messageFont", new FontUIResource(new Font(
             con.setAutoCommit(false);
             Statement s = con.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
 
-            s.execute("select ID,CUSTOMER_ID,CUSTOMER_NAME,TOTAL_AMOUNT,PAID,REMAIN,PURCHASE_DATE from PurchaseHistory");
+            s.execute("select ID,CUSTOMER_ID,CUSTOMER_NAME,TOTAL_AMOUNT,PAID,REMAIN,PURCHASE_DATE,NOTE from PurchaseHistory");
 
             ResultSet rs = s.getResultSet(); // get any ResultSet that came from our query
 
@@ -904,7 +905,7 @@ UIManager.put("OptionPane.messageFont", new FontUIResource(new Font(
 
                     bill.setRemain(rs.getDouble("REMAIN"));
                     bill.setPURCHASE_DATE(rs.getString("PURCHASE_DATE"));
-
+                     bill.setNote(rs.getString("NOTE"));
                     purchaseHistory.add(bill);
 
                 }
@@ -928,6 +929,7 @@ DefaultTableModel model = new DefaultTableModel();
         Object[] row = new Object[7];
         for (int i = 0; i < purchaseHistory.size(); i++) {
 
+
             row[0] = purchaseHistory.get(i).getPURCHASE_DATE();
             row[1] = purchaseHistory.get(i).getRemain() + "";
             row[2] = purchaseHistory.get(i).getPaid() + "";
@@ -936,7 +938,7 @@ DefaultTableModel model = new DefaultTableModel();
             row[5] = purchaseHistory.get(i).getCUSTOMER_ID() + "";
             row[6] = purchaseHistory.get(i).getId() + "";
             model.addRow(row);
-
+             
         }
 
         jTable2.setModel(model);

@@ -5,17 +5,97 @@
  */
 package Trial.Customer;
 
+
+import java.awt.Font;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.io.File;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.UIManager;
+import javax.swing.plaf.FontUIResource;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+import model.Bill;
+import model.PurchasedProduct;
+
 /**
  *
  * @author DELL
  */
 public class AccountPaymentDetailsActivity extends javax.swing.JFrame {
-
+        int bill_ID;
+     Object[] columns = {"التاريخ", "الإجمالي", "الكمية", "سعرالوحدة", "اسم الصنف", "م.ف", "م"};
+     private List<PurchasedProduct> products=new ArrayList<>();
+     int customerId=7;
+     String mCustomerName;
+     double mTotal;
     /**
      * Creates new form AccountPaymentDetailsActivity
      */
-    public AccountPaymentDetailsActivity() {
+    public AccountPaymentDetailsActivity(int customerId,String mCustomerName,double total) {
         initComponents();
+        this.customerId=customerId;
+        this.mCustomerName=mCustomerName;
+        customerName.setText(mCustomerName);
+        this.mTotal=total;
+        totalBalance.setText(total+"");
+         UIManager.put("OptionPane.messageFont", new FontUIResource(new Font(
+                "Arial", Font.BOLD, 18)));
+     Font font = new Font("Arial", Font.PLAIN, 18);
+        jTable2.setFont(font);
+        jTable2.getTableHeader().setFont(font);
+ DefaultTableCellRenderer renderer=(DefaultTableCellRenderer)  jTable2.getTableHeader().getDefaultRenderer();
+      renderer.setHorizontalAlignment(JLabel.CENTER);
+
+      getData();
+
+         jTable2.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+
+                int index = jTable2.getSelectedRow();
+
+                TableModel model = jTable2.getModel();
+
+                String value1 = model.getValueAt(index, 6).toString();
+                System.out.println(value1);
+//                new BillActivity(Integer.parseInt(value1), customerID, false).setVisible(true);
+//                setVisible(false);
+
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+            }
+        });
+
+
     }
 
     /**
@@ -42,8 +122,16 @@ public class AccountPaymentDetailsActivity extends javax.swing.JFrame {
         jLabel6 = new javax.swing.JLabel();
         customerName = new javax.swing.JTextField();
         print = new javax.swing.JButton();
+        jLabel7 = new javax.swing.JLabel();
+        from = new javax.swing.JTextField();
+        jLabel8 = new javax.swing.JLabel();
+        to = new javax.swing.JTextField();
+        fillter = new javax.swing.JButton();
+        all = new javax.swing.JButton();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
+        setLocation(new java.awt.Point(100, 100));
+        setResizable(false);
 
         jPanel1.setBackground(new java.awt.Color(250, 250, 250));
         jPanel1.setLayout(null);
@@ -129,7 +217,7 @@ public class AccountPaymentDetailsActivity extends javax.swing.JFrame {
         jScrollPane2.setViewportView(jTable2);
 
         jPanel1.add(jScrollPane2);
-        jScrollPane2.setBounds(190, 270, 670, 270);
+        jScrollPane2.setBounds(190, 320, 670, 270);
 
         jPanel4.setBackground(new java.awt.Color(0, 11, 106));
 
@@ -159,9 +247,9 @@ public class AccountPaymentDetailsActivity extends javax.swing.JFrame {
 
         jLabel6.setFont(new java.awt.Font("Arial", 1, 24)); // NOI18N
         jLabel6.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        jLabel6.setText("الاسم :");
+        jLabel6.setText("من :");
         jPanel1.add(jLabel6);
-        jLabel6.setBounds(750, 210, 80, 29);
+        jLabel6.setBounds(810, 270, 40, 29);
 
         customerName.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         customerName.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
@@ -174,6 +262,48 @@ public class AccountPaymentDetailsActivity extends javax.swing.JFrame {
         print.setText("طباعة");
         jPanel1.add(print);
         print.setBounds(39, 620, 90, 40);
+
+        jLabel7.setFont(new java.awt.Font("Arial", 1, 24)); // NOI18N
+        jLabel7.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        jLabel7.setText("الاسم :");
+        jPanel1.add(jLabel7);
+        jLabel7.setBounds(750, 210, 80, 29);
+
+        from.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        from.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
+        jPanel1.add(from);
+        from.setBounds(649, 272, 150, 30);
+
+        jLabel8.setFont(new java.awt.Font("Arial", 1, 24)); // NOI18N
+        jLabel8.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        jLabel8.setText("إلى :");
+        jPanel1.add(jLabel8);
+        jLabel8.setBounds(580, 270, 40, 29);
+
+        to.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        to.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
+        jPanel1.add(to);
+        to.setBounds(410, 270, 150, 30);
+
+        fillter.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        fillter.setText("فلترة");
+        fillter.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                fillterActionPerformed(evt);
+            }
+        });
+        jPanel1.add(fillter);
+        fillter.setBounds(320, 270, 61, 30);
+
+        all.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        all.setText("الكل");
+        all.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                allActionPerformed(evt);
+            }
+        });
+        jPanel1.add(all);
+        all.setBounds(240, 270, 60, 30);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -199,49 +329,181 @@ public class AccountPaymentDetailsActivity extends javax.swing.JFrame {
         setVisible(false);
     }//GEN-LAST:event_backMouseClicked
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(AccountPaymentDetailsActivity.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(AccountPaymentDetailsActivity.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(AccountPaymentDetailsActivity.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(AccountPaymentDetailsActivity.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
+    private void fillterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fillterActionPerformed
 
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new AccountPaymentDetailsActivity().setVisible(true);
+        String startDate=from.getText();
+        String endDate=to.getText();
+
+        if(startDate.isEmpty() || endDate.isEmpty()){
+            JOptionPane.showMessageDialog(null, "يجب ادخال تاريخ");
+            return;
+        }
+
+
+            try {
+                // TODO add your handling code here:
+                getDataBetween( startDate, endDate);
+            } catch (ParseException ex) {
+                Logger.getLogger(AccountPaymentDetailsActivity.class.getName()).log(Level.SEVERE, null, ex);
             }
-        });
+
+    }//GEN-LAST:event_fillterActionPerformed
+
+    private void allActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_allActionPerformed
+        // TODO add your handling code here:
+
+        getData();
+    }//GEN-LAST:event_allActionPerformed
+
+
+
+    private void getDataBetween(String startDate,String endDate) throws ParseException{
+
+        SimpleDateFormat start = new SimpleDateFormat("dd/MM/yyyy");
+         Date sD=   start.parse(startDate);
+
+        SimpleDateFormat end = new SimpleDateFormat("dd/MM/yyyy");
+        Date eD=  end.parse(endDate);
+
+           products.clear();
+
+               try {
+            Class.forName("net.ucanaccess.jdbc.UcanaccessDriver");
+            File f = new File("AboDan shops.accdb");
+            String path = f.getAbsolutePath();
+            //  now we can get the connection from the DriverManager
+            Connection con = DriverManager.getConnection("jdbc:ucanaccess://" + path, "", "");
+            con.setAutoCommit(false);
+            Statement s = con.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+
+            s.execute("select ID,CUSTOMER_ID,CUSTOMER_NAME,TOTAL_AMOUNT,PAID,REMAIN,PURCHASE_DATE ,DISCOUNT,NOTE from PurchaseHistory");
+
+            ResultSet rs = s.getResultSet(); // get any ResultSet that came from our query
+
+            if (rs != null) { // if rs == null, then there is no ResultSet to view
+
+                while (rs.next())// this will step through our data row-by-row
+                {
+
+                    if (7 == rs.getInt("CUSTOMER_ID")) {
+                            bill_ID=rs.getInt("ID");
+
+            File f2 = new File("AboDan shops.accdb");
+            String path1 = f2.getAbsolutePath();
+            //  now we can get the connection from the DriverManager
+            Connection con2 = DriverManager.getConnection("jdbc:ucanaccess://" + path, "", "");
+            con2.setAutoCommit(false);
+            Statement s1 = con2.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+
+                s1.execute("select ID,PURCHASE_ID,PRODUCT_NAME,PRICE,QUANTITY,TOTAL,PURCHASE_DATE from PurchaseProducts");
+
+                ResultSet rs1 = s1.getResultSet(); // get any ResultSet that came from our query
+
+                if (rs1 != null) {
+
+                    while (rs1.next()) {
+
+                        if (bill_ID == rs1.getInt("PURCHASE_ID")) {
+                               SimpleDateFormat purchaseDate = new SimpleDateFormat("dd/MM/yyyy");
+                                 Date pD=   purchaseDate.parse(rs1.getString("PURCHASE_DATE"));
+
+                                 if(sD.compareTo(pD) <= 0 && eD.compareTo(pD) >= 0){
+
+
+                            PurchasedProduct purchasedProduct = new PurchasedProduct();
+                            purchasedProduct.setId(rs1.getInt("ID"));
+                            purchasedProduct.setPURCHASE_ID(rs1.getInt("PURCHASE_ID"));
+                            purchasedProduct.setName(rs1.getString("PRODUCT_NAME"));
+                            purchasedProduct.setQuantity(rs1.getInt("QUANTITY"));
+                            purchasedProduct.setTOTAL(rs1.getDouble("TOTAL"));
+                            purchasedProduct.setSalePrice(rs1.getDouble("PRICE"));
+                            purchasedProduct.setPurchaseDate(rs1.getString("PURCHASE_DATE"));
+
+                            products.add(purchasedProduct);
+                                 }
+                        }
+
+                    }
+
+                }
+
+                con2.commit();
+                rs1.close();
+                con2.close();
+            }
+
+
+
+
+                }
+                displayData();
+                con.commit();
+                rs.close();
+                con.close();
+            }}
+         catch (Exception e) {
+            e.printStackTrace();
+            // System.out.println("Error: " + e);
+        }
+
+
+
     }
 
+     private void displayData() {
+
+
+
+        DefaultTableModel model = new DefaultTableModel();
+        model.setColumnIdentifiers(columns);
+ Collections.reverse(products);
+        Object[] row = new Object[9];
+        for (int i = 0; i < products.size(); i++) {
+            row[0] = products.get(i).getPurchaseDate();
+            row[1] = products.get(i).getTOTAL();
+            row[2] = products.get(i).getQuantity() + "";
+            row[3] = products.get(i).getSalePrice()+ "";
+            row[4] = products.get(i).getName() + "";
+            row[5] = products.get(i).getPURCHASE_ID() + "";
+            row[6] = products.get(i).getId();
+
+            model.addRow(row);
+
+        }
+
+          jTable2.setModel(model);
+        DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();
+
+        rightRenderer.setHorizontalAlignment(JLabel.RIGHT);
+
+        jTable2.getColumnModel().getColumn(0).setCellRenderer(rightRenderer);
+        jTable2.getColumnModel().getColumn(1).setCellRenderer(rightRenderer);
+        jTable2.getColumnModel().getColumn(2).setCellRenderer(rightRenderer);
+        jTable2.getColumnModel().getColumn(3).setCellRenderer(rightRenderer);
+        jTable2.getColumnModel().getColumn(4).setCellRenderer(rightRenderer);
+        jTable2.getColumnModel().getColumn(5).setCellRenderer(rightRenderer);
+        jTable2.getColumnModel().getColumn(6).setCellRenderer(rightRenderer);
+
+        jTable2.getColumnModel().getColumn(5).setMaxWidth(40);
+        jTable2.getColumnModel().getColumn(5).setMinWidth(40);
+        jTable2.getColumnModel().getColumn(6).setMaxWidth(40);
+        jTable2.getColumnModel().getColumn(6).setMinWidth(40);
+
+     }
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton all;
     private javax.swing.JLabel back;
     private javax.swing.JTextField customerName;
+    private javax.swing.JButton fillter;
+    private javax.swing.JTextField from;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
@@ -249,6 +511,88 @@ public class AccountPaymentDetailsActivity extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTable jTable2;
     private javax.swing.JButton print;
+    private javax.swing.JTextField to;
     private javax.swing.JTextField totalBalance;
     // End of variables declaration//GEN-END:variables
+
+    private void getData() {
+
+            products.clear();
+
+               try {
+            Class.forName("net.ucanaccess.jdbc.UcanaccessDriver");
+            File f = new File("AboDan shops.accdb");
+            String path = f.getAbsolutePath();
+            //  now we can get the connection from the DriverManager
+            Connection con = DriverManager.getConnection("jdbc:ucanaccess://" + path, "", "");
+            con.setAutoCommit(false);
+            Statement s = con.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+
+            s.execute("select ID,CUSTOMER_ID,CUSTOMER_NAME,TOTAL_AMOUNT,PAID,REMAIN,PURCHASE_DATE ,DISCOUNT,NOTE from PurchaseHistory");
+
+            ResultSet rs = s.getResultSet(); // get any ResultSet that came from our query
+
+            if (rs != null) { // if rs == null, then there is no ResultSet to view
+
+                while (rs.next())// this will step through our data row-by-row
+                {
+
+                    if (7 == rs.getInt("CUSTOMER_ID")) {
+                            bill_ID=rs.getInt("ID");
+
+            File f2 = new File("AboDan shops.accdb");
+            String path1 = f2.getAbsolutePath();
+            //  now we can get the connection from the DriverManager
+            Connection con2 = DriverManager.getConnection("jdbc:ucanaccess://" + path, "", "");
+            con2.setAutoCommit(false);
+            Statement s1 = con2.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+
+                s1.execute("select ID,PURCHASE_ID,PRODUCT_NAME,PRICE,QUANTITY,TOTAL,PURCHASE_DATE from PurchaseProducts");
+
+                ResultSet rs1 = s1.getResultSet(); // get any ResultSet that came from our query
+
+                if (rs1 != null) {
+
+                    while (rs1.next()) {
+
+                        if (bill_ID == rs1.getInt("PURCHASE_ID")) {
+
+                            PurchasedProduct purchasedProduct = new PurchasedProduct();
+                            purchasedProduct.setId(rs1.getInt("ID"));
+                            purchasedProduct.setPURCHASE_ID(rs1.getInt("PURCHASE_ID"));
+                            purchasedProduct.setName(rs1.getString("PRODUCT_NAME"));
+                            purchasedProduct.setQuantity(rs1.getInt("QUANTITY"));
+                            purchasedProduct.setTOTAL(rs1.getDouble("TOTAL"));
+                            purchasedProduct.setSalePrice(rs1.getDouble("PRICE"));
+                            purchasedProduct.setPurchaseDate(rs1.getString("PURCHASE_DATE"));
+
+                            products.add(purchasedProduct);
+
+                        }
+
+                    }
+
+                }
+
+                con2.commit();
+                rs1.close();
+                con2.close();
+            }
+
+
+
+
+                }
+                displayData();
+                con.commit();
+                rs.close();
+                con.close();
+            }}
+         catch (Exception e) {
+            e.printStackTrace();
+            // System.out.println("Error: " + e);
+        }
+
+
+    }
 }
